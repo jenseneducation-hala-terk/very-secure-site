@@ -1,9 +1,14 @@
 // Packages
 const express = require('express')
 const cookieParser = require('cookie-parser')
+const session = require('express-session')
 
 // Express Instance
 const app = express()
+
+app.use(session({
+    secret: 'veryverysecret'
+}))
 
 // Data
 // const user1 = {username:"admin", password:"password"}
@@ -44,7 +49,8 @@ app.post('/login', (req,res) => {
         
         if(req.body.username == user.username && req.body.password == user.password){
             match = true
-            res.cookie("user", user.username)
+            req.session.user = user.username
+            // res.cookie("user", user.username)
             res.redirect('/secure')
             break;
         }
@@ -58,8 +64,8 @@ app.post('/login', (req,res) => {
 
 // Secured route
 app.get('/secure', (req,res) => {
-    if(req.cookies.user){
-        const secret = secrets[ req.cookies.user ]
+    if(req.session.user){
+        const secret = secrets[ req.session.user ]
         res.render("secure", {secret})
     }else{
         res.status(403)
